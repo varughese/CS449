@@ -1,7 +1,7 @@
 /*
- *
- * Rock Paper Scissors
  * Mathew Varughese
+ * MAV120
+ * Rock Paper Scissors
  *
  * This is a simple program which asks a player to play against the computer in Rock Paper Scissors
  * The user must type some variant of the word "yes" to start the game, and correctly spell
@@ -12,7 +12,10 @@
  */
 
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <time.h>
 
 /*
  * This reads a user input and determines whether they said "yes" or not
@@ -20,68 +23,76 @@
 int wantsToPlay() {
 	char userOption[4];
 	scanf("%s", userOption);
-
+	printf("\n");
 	return tolower(userOption[0]) == 'y';
 }
 
 /*
- * This reads a user input into the char array passed in
+ * Returns that the choice is valid.
  */
-void getUserChoice(char* choice) {
+int isValidChoice(char *choice) {
+	return !strcmp(choice, "rock") || !strcmp(choice, "paper") || !strcmp(choice, "scissors");
+}
+
+/*
+ * This reads a user input into the char array passed in. If the choice is invalid, it will ask again.
+ */
+char getPlayerChoice() {
 	printf("What is your choice? ");
-	scanf("%s", choice);
+	char choice[16];
+	int invalidChoice = 1;
+	while(invalidChoice) {
+		scanf("%s", choice);
+		if(isValidChoice(choice)) {
+			invalidChoice = 0;
+		} else {
+			printf("...  Enter a valid choice: ");
+		}
+	};
+	return choice[0];
 }
 
 /*
  * This randomly chooses a choice for the computer
  */
-void getComputerChoice(char* choice) {
+char getComputerChoice() {
 	char choices[3][10] = {"rock", "paper", "scissors"};
 	int c = rand() % 3;
 	printf("The computer chooses %s. ", choices[c]);
-
-	/* Here, I copy the array element into choice variable manually, instead of using
-	 * strcpy to avoid the "incompatible implicit declaration of built-in function ‘strcpy’"
-	 * warning from the compiler
-	 */
-	int i = 0;
-	while(choices[c][i] != '\0') {
-		choice[i] = choices[c][i];
-		i++;
-	}
-	choice[i] = '\0';
+	return choices[c][0];
 }
 
 /*
  * This takes two choices and determines the winner as an integer.
+ * 'r' respresents Rock ... etc
  *
- * 0: Tie
- * 1: Player
- * 2: Computer
+ * 0 - Tie
+ * 1 - Player
+ * 2 - Computer
  *
  */
-int computeWinner(char *userChoice, char *computerChoice) {
-	if(!strcmp(userChoice, "rock")) {
-		if(!strcmp(computerChoice, "rock")) {
+int computeWinner(char playerChoice, char computerChoice) {
+	if(playerChoice == 'r') {
+		if(computerChoice == 'r') {
 			return 0;
-		} else if(!strcmp(computerChoice, "paper")) {
+		} else if(computerChoice == 'p') {
 			return 2;
 		} else {
 			return 1;
 		}
-	} else if(!strcmp(userChoice, "paper")) {
-		if(!strcmp(computerChoice, "rock")) {
+	} else if(playerChoice == 'p') {
+		if(computerChoice == 'r') {
 			return 1;
-		} else if(!strcmp(computerChoice, "paper")) {
+		} else if(computerChoice == 'p') {
 			return 0;
 		} else {
 			return 2;
 		}
 	} else {
-		// userChoice == "scissors"
-		if(!strcmp(computerChoice, "rock")) {
+		// playerChoice == 's'
+		if(computerChoice == 'r') {
 			return 2;
-		} else if(!strcmp(computerChoice, "paper")) {
+		} else if(computerChoice == 'p') {
 			return 1;
 		} else {
 			return 0;
@@ -140,9 +151,11 @@ int checkPlaying(GameInfo* gameInfo) {
 		printf("\n------- \nThe game is over! Would you like to play a new game? ");
 		resetGame(gameInfo);
 		return wantsToPlay();
+	} else {
+		return 1;
 	}
-	return 1;
 }
+
 
 int main() {
 	srand((unsigned int)time(NULL));
@@ -152,19 +165,17 @@ int main() {
 
 	int playing = wantsToPlay();
 	int roundWinner;
-	printf("\n");
 
 	GameInfo gameInfo = {0, 0, 0};
 
 	while(playing) {
 		printf("------\nROUND %d\n", gameInfo.rounds+1);
-		char userChoice[10];
-		char computerChoice[10];
-		getUserChoice(userChoice);
-		getComputerChoice(computerChoice);
-		roundWinner = computeWinner(userChoice, computerChoice);
+		char playerChoice = getPlayerChoice();
+		char computerChoice = getComputerChoice();
+		roundWinner = computeWinner(playerChoice, computerChoice);
 
-		if(roundWinner == 0) {
+		int isTie = roundWinner == 0;
+		if(isTie) {
 			printf("Tie!\n");
 			continue;
 		}

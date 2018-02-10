@@ -1,9 +1,9 @@
 /*
- *
- * Bitmap Image "Editor"
  * Mathew Varughese
+ * MAV120
+ * Bitmap Image "Editor"
  *
- * This is a simple command line utility that can perform image manipulation on bitmap files.
+ * This is a simple command line utility that can perform (very) basic image manipulation on bitmap files.
  *
  * Arguments
  * argv[1]
@@ -16,7 +16,7 @@
  * Example
  * ./bmp_edit -grayscale img1.bmp
  *
- * Functions do what they said. "checkValidArgs" for example, checks if the arguments passed into
+ * Functions do what they say. "checkValidArgs" for example, checks if the arguments passed into
  * the function are valid. Documentation is included inside the functions to explain logic
  * that cannot be gleaned just from the variable or function names.
  *
@@ -64,7 +64,7 @@ int checkValidArgs(int argc, char *manipulationType) {
 	}
 
 	if(!(strcmp(manipulationType, "-invert") == 0 || strcmp(manipulationType, "-grayscale") == 0)) {
-		printf("Unsupported manipulation type.\n");
+		printf("'%s' is an unsupported manipulation type.\n", manipulationType);
 		return 0;
 	}
 
@@ -74,7 +74,7 @@ int checkValidArgs(int argc, char *manipulationType) {
 int checkValidBitmap(FILE *file_ptr, struct BMP_HEADER *bmpHeader_ptr, struct DIB_HEADER *dibHeader_ptr) {
 	if(file_ptr == NULL) {
 		printf("Cannot open up the file.\n");
-		return 1;
+		return 0;
 	}
 
 	fread(bmpHeader_ptr, sizeof(struct BMP_HEADER), 1, file_ptr);
@@ -114,11 +114,11 @@ void grayscale(struct Pixel *p) {
 	float g = p->g / 255.0;
 	float b = p->b / 255.0;
 
-	/* These equations emphasize how our eyes are much better at seeing green than blue */
+	/* These equations use biological discoveries to emphasize how our eyes are better at seeing green than blue */
 	/* (Figured out by someone much smarter than me) */
 
 	float y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-	float newColorValue;
+	char newColorValue;
 
 	if(y <= 0.0031308) {
 		newColorValue = (unsigned char)(255 * 12.92 * y);
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
 	char manipulationType = argv[1][1];
 	manipulateImage(file_ptr, manipulationType, dibHeader.width, dibHeader.height);
 
-	/* Hope the manipulation work and close the program! */
+	/* Hope the manipulation worked and close the program! */
 	fclose(file_ptr);
 	return 0;
 }
