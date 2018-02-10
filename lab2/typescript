@@ -1,0 +1,7 @@
+Script started on Mon 22 Jan 2018 03:48:29 PM EST
+[?1034h(1) thoth $ ./lab2b.c
+bash: ./lab2b.c: Permission denied
+(2) thoth $ exit
+exit
+
+Script done on Mon 22 Jan 2018 03:48:56 PM EST
