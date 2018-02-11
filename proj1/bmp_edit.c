@@ -79,7 +79,7 @@ int checkValidBitmap(FILE *file_ptr, struct BMP_HEADER *bmpHeader_ptr, struct DI
 
 	fread(bmpHeader_ptr, sizeof(struct BMP_HEADER), 1, file_ptr);
 
-	/* Check to make sure the magic header is 'BM' */
+	/* Check to make sure the magic number is 'BM' */
 	if(!(bmpHeader_ptr->format_identifier[0] == 'B' && bmpHeader_ptr->format_identifier[1] == 'M')) {
 		printf("This file type is not supported.\n");
 		fclose(file_ptr);
@@ -132,7 +132,7 @@ void grayscale(struct Pixel *p) {
 void manipulatePixel(char manipulationType, struct Pixel *p) {
 	/*
 	 * Instead of making grayscale and invert functions repeat the code to loop through
-	 * the pixel data, this function decides which manipulation do at the pixel level.
+	 * the pixel data, this function determines which manipulation to perform at the pixel level.
 	 */
 	switch(manipulationType) {
 		case 'g':
@@ -149,7 +149,7 @@ void manipulatePixel(char manipulationType, struct Pixel *p) {
 void manipulateImage(FILE *file_ptr, char manipulationType, int width, int height) {
 	int i, j;
 	struct Pixel p;
-	/* The BMP format requires that a single row of pixels be a multiple of 4 bytes. This calculates the neccesary padding */
+	/* The BMP format requires that a single row of pixels be a multiple of 4 bytes. This calculates the neccesary offset */
 	int rowOffsetAmount = (3*width % 4 == 0) ? 0 : 4 - (3*width % 4);
 	/* Loop through each pixel and perform the manipulation */
 	for(i=0; i<height; i++) {
@@ -172,9 +172,9 @@ int main(int argc, char* argv[]) {
 	/* Check the arguments are valid */
 	int validArgs = checkValidArgs(argc, argv[1]);
 	if(!validArgs) return 1;
-	/* rb+ indicates we will read and write to a binary file */
+	/* argv[2] has the filename, and rb+ indicates we will read and write to a binary file */
 	FILE *file_ptr = fopen(argv[2], "rb+");
-	/* The first bytes in the BMP file are a BMP header and DIB header that contain metadata about the image */
+	/* The first 54 bytes in the BMP file are the BMP Header and DIB header, which contain metadata about the image */
 	struct BMP_HEADER bmpHeader;
 	struct DIB_HEADER dibHeader;
 	/* Check that the bitmap is in a format that this program can understand */
